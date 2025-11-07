@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const fs = require("fs"); // Add fs module for file checking
+const fs = require("fs");
 const connectDB = require("./config/database");
 const scheduleController = require("./controllers/scheduleController.js");
 
@@ -14,8 +14,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
-
 // API Routes
 app.use("/api/v1/teachers", require("./routes/teachers"));
 app.use("/api/v1/courses", require("./routes/courses"));
@@ -23,7 +21,12 @@ app.use("/api/v1/classrooms", require("./routes/classrooms"));
 app.use("/api/v1/schedules", require("./routes/schedules"));
 app.patch("/api/v1/schedules/:id", scheduleController.updateSchedule);
 
-// Health check
+// Frontend static files
+const frontendPath = path.join(__dirname, "../frontend");
+const indexPath = path.join(frontendPath, "index.html");
+app.use(express.static(frontendPath));
+
+// Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({ 
     status: "OK", 
@@ -33,13 +36,10 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-
-
 // TEMPORARY: Seed route - REMOVE AFTER USE
 app.post("/api/seed", async (req, res) => {
   try {
-    // Import and run your seed script
-    const seedScript = require("./data/seed.js"); // adjust path as needed
+    const seedScript = require("./data/seed.js"); // Adjust path if needed
     await seedScript();
     res.json({ success: true, message: "Database seeded successfully" });
   } catch (error) {
@@ -47,19 +47,14 @@ app.post("/api/seed", async (req, res) => {
   }
 });
 
-// SIMPLE: Serve frontend for all routes
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+// Catch-all: serve frontend for all unmatched GET routes (SPA support)
+app.get("/*", (req, res) => {
+  res.sendFile(indexPath);
 });
 
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📁 Frontend path: ${frontendPath}`);
   console.log(`📄 Index.html exists: ${fs.existsSync(indexPath)}`);
-  console.log(`📊 MongoDB: Connected`);
 });
-
-
-
