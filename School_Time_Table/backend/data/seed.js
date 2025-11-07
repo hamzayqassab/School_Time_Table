@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const connectDB = require("../config/database");
+
 
 // Load environment variables from parent directory
 const path = require("path");
@@ -587,3 +589,4 @@ async function seedDatabase() {
 }
 
 seedDatabase();
+
