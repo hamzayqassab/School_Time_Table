@@ -68,17 +68,32 @@ app.use("/api/*", (req, res) => {
   res.status(404).json({ error: "API route not found" });
 });
 
-// Catch-all handler for frontend routes (SPA support)
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
+// Catch-all handler for frontend routes - use a function instead of *
+app.use((req, res, next) => {
+  // If we've already sent a response, skip
+  if (res.headersSent) return next();
+  
+  // Serve index.html for all other routes (SPA support)
+  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"), (err) => {
+    if (err) {
+      // If index.html doesn't exist, return simple JSON
+      res.json({ 
+        message: "School Time Table API", 
+        status: "Frontend not available",
+        api: "Visit /api/health for API status"
+      });
+    }
+  });
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📁 Serving frontend from: ${path.join(__dirname, "..", "frontend")}`);
   console.log(`🔗 MongoDB URL defined: ${!!process.env.MONGODB_URL}`);
 });
+
 
 
 
