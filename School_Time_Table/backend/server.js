@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const path = require("path"); // ← ADD THIS LINE
 const connectDB = require("./config/database");
 const scheduleController = require("./controllers/scheduleController.js");
 const { default: mongoose } = require("mongoose");
@@ -73,6 +74,7 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`🔗 MongoDB URL defined: ${!!process.env.MONGODB_URL}`);
 });
+
 
 
 
