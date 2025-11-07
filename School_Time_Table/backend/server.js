@@ -17,8 +17,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from frontend directory
+// Serve static files - try multiple possible locations
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "../frontend")));
 app.use(express.static(path.join(__dirname, "frontend")));
+app.use(express.static("public"));
 
 // Routes
 app.use("/api/v1/teachers", require("./routes/teachers"));
@@ -70,4 +73,5 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`🔗 MongoDB URL defined: ${!!process.env.MONGODB_URL}`);
 });
+
 
