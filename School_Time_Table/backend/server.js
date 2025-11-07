@@ -40,6 +40,11 @@ app.get("/api/health", (req, res) => {
       mongoose.connection.readyState === 1 ? "connected" : "disconnected",
   });
 });
+
+// Root route - serve frontend
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
+});
 //
 // Add this route temporarily (remove after seeding)
 app.post("/api/seed", async (req, res) => {
@@ -54,37 +59,6 @@ app.post("/api/seed", async (req, res) => {
 });
 //
 // Root route
-app.get("/", (req, res) => {
-  res.json({
-    message: "School Time Table API",
-    status: "running",
-    timestamp: new Date().toISOString(),
-  });
-});
-//
-
-// 404 handler for API routes
-app.use("/api/*", (req, res) => {
-  res.status(404).json({ error: "API route not found" });
-});
-
-// Catch-all handler for frontend routes - use a function instead of *
-app.use((req, res, next) => {
-  // If we've already sent a response, skip
-  if (res.headersSent) return next();
-  
-  // Serve index.html for all other routes (SPA support)
-  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"), (err) => {
-    if (err) {
-      // If index.html doesn't exist, return simple JSON
-      res.json({ 
-        message: "School Time Table API", 
-        status: "Frontend not available",
-        api: "Visit /api/health for API status"
-      });
-    }
-  });
-});
 
 const PORT = process.env.PORT || 3000;
 
@@ -93,6 +67,7 @@ app.listen(PORT, () => {
   console.log(`📁 Serving frontend from: ${path.join(__dirname, "..", "frontend")}`);
   console.log(`🔗 MongoDB URL defined: ${!!process.env.MONGODB_URL}`);
 });
+
 
 
 
