@@ -17,6 +17,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from frontend directory
+app.use(express.static(path.join(__dirname, "../frontend")));
+
 // Routes
 app.use("/api/v1/teachers", require("./routes/teachers"));
 app.use("/api/v1/courses", require("./routes/courses"));
@@ -33,7 +36,18 @@ app.get("/api/health", (req, res) => {
       mongoose.connection.readyState === 1 ? "connected" : "disconnected",
   });
 });
-
+//
+// Add this route temporarily (remove after seeding)
+app.post("/api/seed", async (req, res) => {
+  try {
+    // Import and run your seed script
+    const seedScript = require("./data/seed.js"); // adjust path as needed
+    await seedScript();
+    res.json({ success: true, message: "Database seeded successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 //
 // Root route
 app.get("/", (req, res) => {
@@ -44,6 +58,11 @@ app.get("/", (req, res) => {
   });
 });
 //
+
+// Catch-all handler: send frontend's index.html for all other routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+});
 
 const PORT = process.env.PORT || 3000;
 
