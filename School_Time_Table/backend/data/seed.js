@@ -588,6 +588,8 @@ async function seedDatabase() {
   }
 }
 
-seedDatabase();
+// seedDatabase();
+
+module.exports = seedDatabase;
 
 
