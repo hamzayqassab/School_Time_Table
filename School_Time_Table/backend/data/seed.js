@@ -559,6 +559,34 @@ for (let grade = 1; grade <= 12; grade++) {
 }
 
 // Seed function
+// async function seedDatabase() {
+//   try {
+//     await connectDB();
+
+//     console.log("🗑️  Clearing existing data...");
+//     await Teacher.deleteMany({});
+//     await Course.deleteMany({});
+//     await Classroom.deleteMany({});
+//     console.log("✅ Existing data cleared");
+
+//     console.log("📥 Inserting new data...");
+//     await Teacher.insertMany(teachers);
+//     await Course.insertMany(courses);
+//     await Classroom.insertMany(classrooms);
+
+//     console.log("✅ Database seeded successfully!");
+//     console.log(`📊 Inserted ${teachers.length} teachers`);
+//     console.log(`📚 Inserted ${courses.length} courses`);
+//     console.log(`🏫 Inserted ${classrooms.length} classrooms`);
+
+//     mongoose.connection.close();
+//     process.exit(0);
+//   } catch (error) {
+//     console.error("❌ Error seeding database:", error);
+//     mongoose.connection.close();
+//     process.exit(1);
+//   }
+// }
 async function seedDatabase() {
   try {
     await connectDB();
@@ -579,17 +607,31 @@ async function seedDatabase() {
     console.log(`📚 Inserted ${courses.length} courses`);
     console.log(`🏫 Inserted ${classrooms.length} classrooms`);
 
-    mongoose.connection.close();
-    process.exit(0);
+    // Only close the connection and exit the process
+    // if this script was run directly (node seed.js)
+    if (require.main === module) {
+      mongoose.connection.close();
+      process.exit(0);
+    }
   } catch (error) {
     console.error("❌ Error seeding database:", error);
-    mongoose.connection.close();
-    process.exit(1);
+    if (require.main === module) {
+      mongoose.connection.close();
+      process.exit(1);
+    }
   }
 }
+
+// Only run when executed directly (CLI)
+// if (require.main === module) {
+//   seedDatabase();
+// }
+
+module.exports = seedDatabase;
 
 // seedDatabase();
 
 module.exports = seedDatabase;
+
 
 
