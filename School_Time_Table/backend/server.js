@@ -22,7 +22,7 @@ app.use("/api/v1/schedules", require("./routes/schedules"));
 app.patch("/api/v1/schedules/:id", scheduleController.updateSchedule);
 
 // Frontend static files
-const frontendPath = path.join(__dirname, "../frontend");
+const frontendPath = path.join(__dirname, "frontend");
 const indexPath = path.join(frontendPath, "index.html");
 app.use(express.static(frontendPath));
 
@@ -58,3 +58,4 @@ app.listen(PORT, () => {
   console.log(`📁 Frontend path: ${frontendPath}`);
   console.log(`📄 Index.html exists: ${fs.existsSync(indexPath)}`);
 });
+
