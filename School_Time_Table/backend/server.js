@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 // Get the correct frontend path
-const frontendPath = path.join(__dirname, "..", "frontend");
+const frontendPath = path.join(__dirname, "frontend");
 const indexPath = path.join(frontendPath, "index.html");
 
 // Check if frontend directory exists
@@ -90,3 +90,4 @@ app.listen(PORT, () => {
   console.log(`📄 Index.html exists: ${fs.existsSync(indexPath)}`);
   console.log(`📊 MongoDB: Connected`);
 });
+
