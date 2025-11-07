@@ -63,9 +63,14 @@ app.get("/", (req, res) => {
 });
 //
 
-// Catch-all handler: send frontend's index.html for all other routes
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+// 404 handler for API routes
+app.use("/api/*", (req, res) => {
+  res.status(404).json({ error: "API route not found" });
+});
+
+// Catch-all handler for frontend routes (SPA support)
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
 });
 
 const PORT = process.env.PORT || 3000;
@@ -74,6 +79,7 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`🔗 MongoDB URL defined: ${!!process.env.MONGODB_URL}`);
 });
+
 
 
 
