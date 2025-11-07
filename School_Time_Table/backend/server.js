@@ -68,15 +68,7 @@ const scheduleController = require("./controllers/scheduleController.js");
 const seedScript = require("./data/seed.js");
 
 // Connect to MongoDB and seed
-connectDB().then(() => {
-  seedScript()
-    .then(() => {
-      console.log("✅ Database seeded on startup");
-    })
-    .catch((err) => {
-      console.error("❌ Error seeding database:", err);
-    });
-});
+
 
 const app = express();
 
@@ -119,6 +111,15 @@ app.listen(PORT, () => {
 });
 
 
+connectDB().then(() => {
+  seedScript()
+    .then(() => {
+      console.log("✅ Database seeded on startup");
+    })
+    .catch((err) => {
+      console.error("❌ Error seeding database:", err);
+    });
+});
 
 
 
