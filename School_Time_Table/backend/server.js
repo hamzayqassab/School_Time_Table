@@ -48,7 +48,7 @@ app.post("/api/seed", async (req, res) => {
 });
 
 // Catch-all: serve frontend for all unmatched GET routes (SPA support)
-app.get("*", (req, res) => {
+app.get("/:splat", (req, res) => {
   res.sendFile(indexPath);
 });
 
@@ -58,5 +58,6 @@ app.listen(PORT, () => {
   console.log(`📁 Frontend path: ${frontendPath}`);
   console.log(`📄 Index.html exists: ${fs.existsSync(indexPath)}`);
 });
+
 
 
