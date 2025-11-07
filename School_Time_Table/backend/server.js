@@ -14,21 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Get the correct frontend path
-const frontendPath = "/frontend";
-const indexPath = path.join(frontendPath, "index.html");
 
-// Check if frontend directory exists
-console.log("📁 Frontend path:", frontendPath);
-console.log("📄 Index.html exists:", fs.existsSync(indexPath));
-
-// Serve static files from the frontend directory if it exists
-if (fs.existsSync(frontendPath)) {
-  app.use(express.static(frontendPath));
-  console.log("✅ Serving frontend static files");
-} else {
-  console.log("❌ Frontend directory not found at:", frontendPath);
-}
 
 // API Routes
 app.use("/api/v1/teachers", require("./routes/teachers"));
@@ -47,26 +33,7 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Root route - serve frontend if available, otherwise show API info
-app.get("/", (req, res) => {
-  if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
-  } else {
-    res.json({ 
-      message: "School Time Table API",
-      status: "Backend API is running",
-      frontend: "Not available",
-      endpoints: {
-        health: "/api/health",
-        teachers: "/api/v1/teachers",
-        courses: "/api/v1/courses", 
-        classrooms: "/api/v1/classrooms",
-        schedules: "/api/v1/schedules",
-        seed: "/api/seed-database"
-      }
-    });
-  }
-});
+
 
 // TEMPORARY: Seed route - REMOVE AFTER USE
 app.post("/api/seed", async (req, res) => {
@@ -80,7 +47,10 @@ app.post("/api/seed", async (req, res) => {
   }
 });
 
-
+// SIMPLE: Serve frontend for all routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+});
 
 const PORT = process.env.PORT || 3000;
 
@@ -90,5 +60,6 @@ app.listen(PORT, () => {
   console.log(`📄 Index.html exists: ${fs.existsSync(indexPath)}`);
   console.log(`📊 MongoDB: Connected`);
 });
+
 
 
