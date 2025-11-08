@@ -158,7 +158,7 @@ app.get("/api/health", (req, res) => {
 });
 
 // Catch-all: serve frontend for all unmatched GET routes
-app.get("*", (req, res) => {
+app.get("/:splat", (req, res) => {
   res.sendFile(indexPath);
 });
 
@@ -179,6 +179,7 @@ connectDB()
     console.error("❌ Startup error:", err);
     process.exit(1);
   });
+
 
 
 
