@@ -1,5 +1,5 @@
 // API Base URL
-const API_URL = "http://localhost:3000/api/v1";
+const API_URL = "/api/v1";
 let teacherMap = {};
 let courseMap = {};
 let classroomMap = {};
@@ -819,7 +819,7 @@ document
     try {
       console.log("[FRONTEND] Sending POST request to backend...");
       const response = await fetch(
-        "http://localhost:3000/api/v1/schedules/shuffle",
+        "/api/v1/schedules/shuffle",
         { method: "POST" }
       );
       console.log("[FRONTEND] Received response:", response);
@@ -1045,3 +1045,4 @@ document
       });
     hideLoader();
   });
+
