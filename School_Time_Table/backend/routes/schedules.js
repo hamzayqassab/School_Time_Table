@@ -14,7 +14,8 @@ router
 router.patch("/:id", scheduleController.updateSchedule);
 
 // POST /api/v1/schedules/shuffle
-router.post("/shuffle", scheduleController.shuffleSchedule);
+router.post("/shuffle", scheduleController.shuffleSchedules);
 
 module.exports = router;
+
 
