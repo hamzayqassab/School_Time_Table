@@ -242,3 +242,8 @@ header h1 {
     margin-bottom: 7px !important;
   }
 }
+@media (max-width: 768px) {
+  #schedule-tooltip {
+    display: none !important;
+  }
+}
