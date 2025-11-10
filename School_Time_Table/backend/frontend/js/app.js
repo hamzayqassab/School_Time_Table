@@ -467,6 +467,66 @@ async function loadSchedules() {
     }
   });
 }
+
+// Destroy existing draggable before creating new (for table refreshes)
+if (window.draggableInstance) {
+  window.draggableInstance.destroy();
+}
+
+// Setup DraggableJS
+window.draggableInstance = new Draggable.Sortable(
+  document.querySelectorAll(".schedule-cell"),
+  {
+    draggable: ".schedule-item",
+    delay: 0, // No delay, instant drag
+    mirror: {
+      constrainDimensions: true,
+    },
+  }
+);
+
+// Listen for drop events
+window.draggableInstance.on("sortable:stop", async (event) => {
+  // event.data.source: the item being dragged
+  // event.data.over: the target cell (schedule-cell)
+  const item = event.data.source;
+  const dropCell = event.data.over;
+
+  // If the item is dropped into a valid cell
+  if (dropCell && dropCell.classList.contains("schedule-cell")) {
+    const scheduleId = item.dataset.scheduleId;
+    const classroomId = dropCell.dataset.classroom;
+    const teacherIds = item.dataset.teacherIds;
+    const dayOfWeek = dropCell.dataset.day;
+    const time = dropCell.dataset.time;
+
+    // Make your PATCH call (same as prior logic)
+    try {
+      const response = await fetch(`${APIURL}/schedules/${scheduleId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          classroom_id: classroomId,
+          teacher_ids: teacherIds,
+          day_of_week: dayOfWeek,
+          start_time: time.split("-")[0],
+          end_time: time.split("-")[1],
+        }),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert(result.error || "Error updating schedule.");
+      } else {
+        alert("Schedule updated!");
+        await loadSchedules();
+      }
+    } catch (err) {
+      alert("Network error: " + err.message);
+    }
+  }
+});
+
 async function loadSchedulesForWeek(selectedWeek) {
   // Fetch all schedules as usual
   let classroomId = document.getElementById("classroomFilter").value;
@@ -1053,5 +1113,6 @@ document
       });
     hideLoader();
   });
+
 
 
