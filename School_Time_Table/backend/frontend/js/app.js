@@ -357,6 +357,7 @@ async function loadSchedules() {
 
           // Apply the same color to all cells of this schedule
           item.style.background = scheduleColor;
+          let isDragging = false;
           item.addEventListener("dragstart", function (e) {
             e.dataTransfer.setData(
               "application/json",
@@ -368,6 +369,10 @@ async function loadSchedules() {
                 time: schedule.start_time + "-" + schedule.end_time,
               })
             );
+          });
+          item.addEventListener("dragend", function (e) {
+            isDragging = false;
+            // Optionally, tooltip logic can resume on mouseenter
           });
           // Extract the time range for THIS specific cell
           const [cellStart, cellEnd] = timeSlot.split("-");
@@ -392,6 +397,7 @@ async function loadSchedules() {
 
           // Tooltip handlers (show full schedule duration)
           item.addEventListener("mouseenter", function (e) {
+            if (isDragging) return; // Prevent tooltip if dragging
             const tooltip = document.getElementById("schedule-tooltip");
             const teacherName = Array.isArray(schedule.teacher_ids)
               ? schedule.teacher_ids
@@ -421,12 +427,14 @@ async function loadSchedules() {
           });
 
           item.addEventListener("mousemove", function (e) {
+            if (isDragging) return; // Prevent tooltip if dragging
             const tooltip = document.getElementById("schedule-tooltip");
             tooltip.style.left = e.pageX + 12 + "px";
             tooltip.style.top = e.pageY - 38 + "px";
           });
 
           item.addEventListener("mouseleave", function () {
+            
             document.getElementById("schedule-tooltip").style.display = "none";
           });
 
@@ -1045,4 +1053,5 @@ document
       });
     hideLoader();
   });
+
 
