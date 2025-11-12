@@ -1040,7 +1040,7 @@ document
     try {
       console.log("[FRONTEND] Sending POST request to backend...");
       const response = await fetch(
-        "${API_URL}/schedules/shuffle",
+        `${API_URL}/schedules/shuffle`,
         { method: "POST" }
       );
       console.log("[FRONTEND] Received response:", response);
@@ -1266,6 +1266,7 @@ document
       });
     hideLoader();
   });
+
 
 
 
