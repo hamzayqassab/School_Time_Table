@@ -30,6 +30,92 @@ function hideLoader() {
 }
 
 // Create empty timetable grid
+// function initializeTimetable() {
+//   const tbody = document.getElementById("scheduleBody");
+//   tbody.innerHTML = "";
+
+//   TIME_SLOTS.forEach((timeSlot) => {
+//     const row = document.createElement("tr");
+
+//     // Time column
+//     const timeCell = document.createElement("td");
+//     timeCell.textContent = timeSlot;
+
+//     timeCell.style.fontWeight = "bold";
+//     row.appendChild(timeCell);
+
+//     // });
+//     DAYS.forEach((day) => {
+//       // TIME_SLOTS.forEach((timeSlot) => {
+//       const cell = document.createElement("td");
+//       cell.className = "schedule-cell";
+//       cell.dataset.day = day; // ← Make sure this is set
+//       cell.dataset.time = timeSlot; // ← Make sure this is set
+
+//          // ✅ ADD THIS LINE:
+//     const classroomId = document.getElementById("classroomFilter")?.value || "all";
+//     cell.dataset.classroom = classroomId;
+
+//       // ADD DROP HANDLERS:
+//       cell.addEventListener("dragover", function (e) {
+//         e.preventDefault();
+//       });
+
+//       cell.addEventListener("drop", async function (e) {
+//         e.preventDefault();
+//         console.log("📱 DROP fired with:", {
+//         classroom: cell.dataset.classroom,
+//         day: cell.dataset.day,
+//         time: cell.dataset.time,
+//     });
+//         const transfer = e.dataTransfer.getData("application/json");
+//         if (!transfer) return;
+//         const scheduleInfo = JSON.parse(transfer);
+//         if (scheduleInfo.scheduleId) {
+//           const response = await fetch(
+//             `${API_URL}/schedules/${scheduleInfo.scheduleId}`,
+//             {
+//               method: "PATCH",
+//               headers: { "Content-Type": "application/json" },
+//               body: JSON.stringify({
+//                 classroom_id: cell.dataset.classroom,
+//                 teacher_ids: scheduleInfo.teacherIds,
+//                 day_of_week: cell.dataset.day,
+//                 start_time: cell.dataset.time.split("-")[0],
+//                 end_time: cell.dataset.time.split("-")[1],
+//               }),
+//             }
+//           );
+
+//           if (!response.ok) {
+//             const result = await response.json();
+//             alert(result.error || "Error updating schedule.");
+//             loadSchedules();
+//             return;
+//           }
+//           loadSchedules();
+//           return;
+//         }
+//         console.log("Dropping on:", {
+//           day: cell.dataset.day,
+//           time: cell.dataset.time,
+//           scheduleId: scheduleInfo.scheduleId,
+//         });
+
+//         // try {
+
+//         // }
+//       });
+
+//       row.appendChild(cell);
+//       // });
+//     });
+
+//     // TO BE CONTINUED(THE SWAPPING WORKED BUT DOUBLED THE FRONTEND GRID)
+//     tbody.appendChild(row);
+//   });
+// }
+// 
 function initializeTimetable() {
   const tbody = document.getElementById("scheduleBody");
   tbody.innerHTML = "";
@@ -40,81 +126,134 @@ function initializeTimetable() {
     // Time column
     const timeCell = document.createElement("td");
     timeCell.textContent = timeSlot;
-
     timeCell.style.fontWeight = "bold";
     row.appendChild(timeCell);
 
-    // });
     DAYS.forEach((day) => {
-      // TIME_SLOTS.forEach((timeSlot) => {
       const cell = document.createElement("td");
       cell.className = "schedule-cell";
-      cell.dataset.day = day; // ← Make sure this is set
-      cell.dataset.time = timeSlot; // ← Make sure this is set
+      cell.dataset.day = day;
+      cell.dataset.time = timeSlot;
+      
+      // ✅ CRITICAL: Set classroom from filter OR use a global state
+      const classroomId = document.getElementById("classroomFilter")?.value || "all";
+      cell.dataset.classroom = classroomId;
 
-         // ✅ ADD THIS LINE:
-    const classroomId = document.getElementById("classroomFilter")?.value || "all";
-    cell.dataset.classroom = classroomId;
-
-      // ADD DROP HANDLERS:
+      // ✅ Dragover handler - MUST prevent default!
       cell.addEventListener("dragover", function (e) {
         e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        cell.style.backgroundColor = "#e3f2fd"; // Visual feedback
       });
 
+      // ✅ Dragleave handler - Remove visual feedback
+      cell.addEventListener("dragleave", function (e) {
+        if (e.target === cell) {
+          cell.style.backgroundColor = "";
+        }
+      });
+
+      // ✅ Drop handler - FIXED for mobile
       cell.addEventListener("drop", async function (e) {
         e.preventDefault();
-        console.log("📱 DROP fired with:", {
-        classroom: cell.dataset.classroom,
-        day: cell.dataset.day,
-        time: cell.dataset.time,
-    });
-        const transfer = e.dataTransfer.getData("application/json");
-        if (!transfer) return;
-        const scheduleInfo = JSON.parse(transfer);
-        if (scheduleInfo.scheduleId) {
+        e.stopPropagation();
+        
+        cell.style.backgroundColor = ""; // Remove visual feedback
+        
+        console.log("📱 DROP EVENT FIRED on cell:", {
+          day: cell.dataset.day,
+          time: cell.dataset.time,
+          classroom: cell.dataset.classroom,
+        });
+
+        // ✅ TRY MULTIPLE transfer types for mobile compatibility
+        let transfer = null;
+        let scheduleInfo = null;
+
+        // Try JSON first (most reliable)
+        try {
+          transfer = e.dataTransfer.getData("application/json");
+          if (transfer) {
+            scheduleInfo = JSON.parse(transfer);
+          }
+        } catch (err) {
+          console.warn("Failed to parse JSON transfer:", err);
+        }
+
+        // Fallback to text if JSON fails
+        if (!scheduleInfo) {
+          try {
+            transfer = e.dataTransfer.getData("text/plain");
+            if (transfer) {
+              scheduleInfo = JSON.parse(transfer);
+            }
+          } catch (err) {
+            console.warn("Failed to parse text transfer:", err);
+          }
+        }
+
+        // If still no data, check all available types
+        if (!scheduleInfo) {
+          console.error("❌ No transfer data found. Available types:", {
+            types: e.dataTransfer.types,
+            items: e.dataTransfer.items?.length || 0,
+          });
+          return;
+        }
+
+        console.log("✅ Transfer data received:", scheduleInfo);
+
+        if (!scheduleInfo.scheduleId) {
+          console.error("❌ No scheduleId in transfer data");
+          return;
+        }
+
+        // ✅ Build payload with correct data
+        const payload = {
+          classroom_id: cell.dataset.classroom,
+          teacher_ids: scheduleInfo.teacherIds || [],
+          day_of_week: cell.dataset.day,
+          start_time: cell.dataset.time.split("-")[0],
+          end_time: cell.dataset.time.split("-")[1],
+        };
+
+        console.log("📤 Sending PATCH request with payload:", payload);
+
+        try {
           const response = await fetch(
             `${API_URL}/schedules/${scheduleInfo.scheduleId}`,
             {
               method: "PATCH",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                classroom_id: cell.dataset.classroom,
-                teacher_ids: scheduleInfo.teacherIds,
-                day_of_week: cell.dataset.day,
-                start_time: cell.dataset.time.split("-")[0],
-                end_time: cell.dataset.time.split("-")[1],
-              }),
+              body: JSON.stringify(payload),
             }
           );
 
+          console.log("📥 Response status:", response.status);
+
           if (!response.ok) {
             const result = await response.json();
-            alert(result.error || "Error updating schedule.");
-            loadSchedules();
+            console.error("❌ Backend error:", result);
+            alert(result.error || `Error: ${response.status}`);
             return;
           }
-          loadSchedules();
-          return;
+
+          console.log("✅ Schedule updated successfully!");
+          await loadSchedules();
+        } catch (error) {
+          console.error("❌ Network error:", error);
+          alert("Network error: " + error.message);
         }
-        console.log("Dropping on:", {
-          day: cell.dataset.day,
-          time: cell.dataset.time,
-          scheduleId: scheduleInfo.scheduleId,
-        });
-
-        // try {
-
-        // }
       });
 
       row.appendChild(cell);
-      // });
     });
 
-    // TO BE CONTINUED(THE SWAPPING WORKED BUT DOUBLED THE FRONTEND GRID)
     tbody.appendChild(row);
   });
 }
+
+// 
 
 // Load teachers from API
 async function loadTeachers() {
@@ -371,20 +510,51 @@ async function loadSchedules() {
           item.style.background = scheduleColor;
           //
           let isDragging = false;
+          // item.addEventListener("dragstart", function (e) {
+          //   isDragging = true;
+          //   document.getElementById("schedule-tooltip").style.display = "none"; // Always hide tooltip
+          //   e.dataTransfer.setData(
+          //     "application/json",
+          //     JSON.stringify({
+          //       scheduleId: schedule.schedule_id,
+          //       classroomId: schedule.classroom_id,
+          //       teacherIds: schedule.teacher_ids,
+          //       day: schedule.day_of_week,
+          //       time: schedule.start_time + "-" + schedule.end_time,
+          //     })
+          //   );
+          // });
+          // 
           item.addEventListener("dragstart", function (e) {
-            isDragging = true;
-            document.getElementById("schedule-tooltip").style.display = "none"; // Always hide tooltip
-            e.dataTransfer.setData(
-              "application/json",
-              JSON.stringify({
-                scheduleId: schedule.schedule_id,
-                classroomId: schedule.classroom_id,
-                teacherIds: schedule.teacher_ids,
-                day: schedule.day_of_week,
-                time: schedule.start_time + "-" + schedule.end_time,
-              })
-            );
-          });
+  isDragging = true;
+  document.getElementById("schedule-tooltip").style.display = "none";
+  
+  // ✅ Set ALL transfer types for maximum compatibility
+  const transferData = JSON.stringify({
+    scheduleId: schedule.schedule_id,
+    classroomId: schedule.classroom_id,
+    teacherIds: schedule.teacher_ids || [],
+    day: schedule.day_of_week,
+    time: schedule.start_time + "-" + schedule.end_time,
+  });
+
+  console.log("🎯 Dragging schedule:", {
+    scheduleId: schedule.schedule_id,
+    classroom: schedule.classroom_id,
+  });
+
+  // ✅ Set multiple formats for maximum compatibility
+  e.dataTransfer.effectAllowed = "move";
+  e.dataTransfer.setData("application/json", transferData);
+  e.dataTransfer.setData("text/plain", transferData); // Fallback
+
+  // ✅ Set drag image for visual feedback
+  const dragImage = new Image();
+  dragImage.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50'%3E%3Ccircle cx='25' cy='25' r='20' fill='%23667eea'/%3E%3C/svg%3E";
+  e.dataTransfer.setDragImage(dragImage, 25, 25);
+});
+
+          // 
           //
           item.addEventListener("dragend", function (e) {
             isDragging = false;
@@ -1096,6 +1266,7 @@ document
       });
     hideLoader();
   });
+
 
 
 
