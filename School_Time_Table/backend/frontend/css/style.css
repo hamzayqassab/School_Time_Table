@@ -247,3 +247,10 @@ header h1 {
     display: none !important;
   }
 }
+.schedule-item {
+  /* ... existing styles ... */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  touch-action: none;
+}
