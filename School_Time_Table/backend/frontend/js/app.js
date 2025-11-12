@@ -166,6 +166,10 @@ function initializeTimetable() {
       cell.dataset.day = day; // ← Make sure this is set
       cell.dataset.time = timeSlot; // ← Make sure this is set
 
+         // ✅ ADD THIS LINE:
+    const classroomId = document.getElementById("classroomFilter")?.value || "all";
+    cell.dataset.classroom = classroomId;
+
       // ADD DROP HANDLERS:
       cell.addEventListener("dragover", function (e) {
         e.preventDefault();
@@ -578,38 +582,7 @@ async function loadSchedules() {
           //   e.preventDefault();
           // });
 
-          // item.addEventListener("touchend", async function (e) {
-          //   console.log("touchend", item);
-          //   if (!window.mobileDragItem) return;
-          //   item.style.opacity = "";
-          //   const touch = window.mobileInitialTouch;
-          //   const dropCell = document.elementFromPoint(
-          //     touch.clientX,
-          //     touch.clientY
-          //   );
-          //   if (dropCell && dropCell.classList.contains("schedule-cell")) {
-          //     // You may need to set these data attributes when creating `item` above:
-          //     // item.dataset.scheduleId = schedule.scheduleid;
-          //     // item.dataset.teacherIds = JSON.stringify(schedule.teacherids);
-
-          //     const scheduleId = item.dataset.scheduleId;
-          //     const classroomId = dropCell.dataset.classroom;
-          //     const teacherIds = item.dataset.teacherIds;
-          //     const dayOfWeek = dropCell.dataset.day;
-          //     const time = dropCell.dataset.time;
-
-          //     // Update the schedule via your backend (adjust API calls as needed!)
-          //     await fetch(`${APIURL}/schedules/${scheduleId}`, {
-          //       method: "PATCH",
-          //       headers: { "Content-Type": "application/json" },
-          //       body: JSON.stringify({
-          //         classroomid: classroomId,
-          //         teacherids: teacherIds,
-          //         dayofweek: dayOfWeek,
-          //         starttime: time.split("-")[0],
-          //         endtime: time.split("-")[1],
-          //       }),
-          //     });
+   
           //     await loadSchedules(); // Refresh the table
           //   }
           //   window.mobileDragItem = null;
@@ -1232,6 +1205,7 @@ document
       });
     hideLoader();
   });
+
 
 
 
