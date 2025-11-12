@@ -177,6 +177,11 @@ function initializeTimetable() {
 
       cell.addEventListener("drop", async function (e) {
         e.preventDefault();
+        console.log("📱 DROP fired with:", {
+        classroom: cell.dataset.classroom,
+        day: cell.dataset.day,
+        time: cell.dataset.time,
+    });
         const transfer = e.dataTransfer.getData("application/json");
         if (!transfer) return;
         const scheduleInfo = JSON.parse(transfer);
@@ -1205,6 +1210,7 @@ document
       });
     hideLoader();
   });
+
 
 
 
