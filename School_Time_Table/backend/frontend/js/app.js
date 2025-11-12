@@ -1,118 +1,4 @@
-// // API Base URL
-// const API_URL = "/api/v1";
-// let teacherMap = {};
-// let courseMap = {};
-// let classroomMap = {};
 
-//     if (!selectedTeacherId) {
-//       loadCourses();
-
-// document
-//   .getElementById("shuffleTimetable")
-//   .addEventListener("click", async function () {
-//     console.log("[FRONTEND] Shuffle button pressed!");
-//     try {
-//       console.log("[FRONTEND] Sending POST request to backend...");
-//       const response = await fetch(
-//         "/api/v1/schedules/shuffle",
-//         { method: "POST" }
-//       );
-//       console.log("[FRONTEND] Received response:", response);
-//       const result = await response.json();
-//       console.log("[FRONTEND] Response from backend:", result);
-//       if (result.success) {
-//         await loadSchedules();
-//         console.log("[FRONTEND] Schedules reloaded after shuffle.");
-//       } else {
-//         alert(result.error || "Shuffle failed!");
-//       }
-//     } catch (error) {
-//       alert("Network error or shuffle failed.");
-//       console.error("[FRONTEND] Shuffle error:", error);
-//     }
-//   });
-
-// //
-// //  fix the broken populate button(400,409 errors)
-// //   });
-// function isTeacherAvailable(teacher, day, startTime, endTime) {
-//   if (!teacher.availability || !teacher.availability[day]) {
-//     // cell.style.background = "#e0e0e0";
-//     return false;
-//   }
-//   const slots = Array.isArray(teacher.availability[day])
-//     ? teacher.availability[day]
-//     : teacher.availability[day].split(",").map((s) => s.trim());
-//   for (const slot of slots) {
-//     if (!slot || !slot.includes("-")) continue;
-//     let [aStart, aEnd] = slot.split("-");
-//     if (startTime >= aStart && endTime <= aEnd) return true;
-//   }
-//   return false;
-// }
-
-// document
-//   .getElementById("populateSchedule")
-//   .addEventListener("click", async function () {
-//     showLoader();
-//     if (
-//       !confirm("This will add demo schedules to fill your timetable. Proceed?")
-//     )
-//       return;
-
-//     if (coursesData.length === 0) await loadCourses();
-//     if (teachersData.length === 0) await loadTeachers();
-//     if (Object.keys(classroomMap).length === 0) await loadClassrooms();
-
-
-//                 if (!grades.map((g) => String(g).trim()).includes(grd))
-//                   reason.push(
-//                     "teacher does NOT teach classroom's grade (" + grd + ")"
-//                   );
-//                 if (!t.availability || !t.availability[day])
-//                   reason.push("teacher not available that day (" + day + ")");
-//                 else if (
-//                   !isTeacherAvailable(
-//                     t,
-//                     day,
-//                     slot.split("-")[0],
-//                     slot.split("-")[1]
-//                   )
-//                 )
-//                   reason.push("teacher not available at slot (" + slot + ")");
-//                 console.log("[DIAGNOSE]", {
-//                   classroomId,
-//                   day,
-//                   slot,
-//                   course: course.course_id,
-//                   teacher: t.teacher_id,
-//                   name: t.name,
-//                   reason:
-//                     reason.length === 0
-//                       ? "WOULD BE SCHEDULED"
-//                       : reason.join("; "),
-//                 });
-//               });
-//             }
-
-//             if (validTeachers.length === 0) continue;
-
-//             const teacher = validTeachers[0];
-//             const tkey = `${teacher.teacher_id}|${day}|${slot}`;
-//             if (teacherSlotMap[tkey]) continue;
-
-//             //     : "1";
-//     alert(
-//       `Timetable population complete! Created: ${successCount}, Skipped/Errors: ${failCount}`
-//     );
-//     loadSchedules();
-//     document
-//       .getElementById("weekSelector")
-//       .addEventListener("change", function () {
-//         loadSchedulesForWeek(parseInt(this.value));
-//       });
-//     hideLoader();
-//   });
 
 
 // API Base URL
@@ -1210,6 +1096,7 @@ document
       });
     hideLoader();
   });
+
 
 
 
