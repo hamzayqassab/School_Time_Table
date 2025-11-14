@@ -136,8 +136,8 @@ function initializeTimetable() {
       cell.dataset.time = timeSlot;
       
       // ✅ CRITICAL: Set classroom from filter OR use a global state
-      const classroomId = document.getElementById("classroomFilter").value;
-      cell.dataset.classroom = classroomId;
+      // const classroomId = document.getElementById("classroomFilter").value;
+      // cell.dataset.classroom = classroomId;
 
       // ✅ Dragover handler - MUST prevent default!
       cell.addEventListener("dragover", function (e) {
@@ -502,6 +502,8 @@ async function loadSchedules() {
         );
 
         if (cell) {
+          // SET THE CLASSROOM FROM THE SCHEDULE DATA
+cell.dataset.classroom = schedule.classroom_id;
           const item = document.createElement("div");
           item.className = "schedule-item";
           item.setAttribute("draggable", "true");
@@ -1266,6 +1268,7 @@ document
       });
     hideLoader();
   });
+
 
 
 
