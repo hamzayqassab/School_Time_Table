@@ -136,7 +136,7 @@ function initializeTimetable() {
       cell.dataset.time = timeSlot;
       
       // ✅ CRITICAL: Set classroom from filter OR use a global state
-      const classroomId = document.getElementById("classroomFilter")?.value || "all";
+      const classroomId = document.getElementById("classroomFilter").value;
       cell.dataset.classroom = classroomId;
 
       // ✅ Dragover handler - MUST prevent default!
@@ -1266,6 +1266,7 @@ document
       });
     hideLoader();
   });
+
 
 
 
