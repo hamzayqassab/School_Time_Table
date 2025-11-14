@@ -209,13 +209,22 @@ function initializeTimetable() {
         }
 
         // ✅ Build payload with correct data
+        // const payload = {
+        //   classroom_id: cell.dataset.classroom,
+        //   teacher_ids: scheduleInfo.teacherIds || [],
+        //   day_of_week: cell.dataset.day,
+        //   start_time: cell.dataset.time.split("-")[0],
+        //   end_time: cell.dataset.time.split("-")[1],
+        // };
+
         const payload = {
-          classroom_id: cell.dataset.classroom,
-          teacher_ids: scheduleInfo.teacherIds || [],
-          day_of_week: cell.dataset.day,
-          start_time: cell.dataset.time.split("-")[0],
-          end_time: cell.dataset.time.split("-")[1],
-        };
+  classroom_id: scheduleInfo.classroomId,  // ✅ CORRECT - uses original classroom
+  teacher_ids: scheduleInfo.teacherIds || [],
+  day_of_week: cell.dataset.day,
+  start_time: cell.dataset.time.split("-")[0],
+  end_time: cell.dataset.time.split("-")[1],
+};
+
 
         console.log("📤 Sending PATCH request with payload:", payload);
 
@@ -1272,6 +1281,7 @@ document
       });
     hideLoader();
   });
+
 
 
 
