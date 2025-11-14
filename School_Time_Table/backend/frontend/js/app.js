@@ -991,6 +991,10 @@ document.addEventListener("DOMContentLoaded", () => {
   setupTeacherCourseFilter();
   setupTeacherClassroomFilter();
 
+    // Auto-load schedules when classroom filter changes
+  document.getElementById("classroomFilter").addEventListener("change", loadSchedules);
+
+
   // Event listeners
   document
     .getElementById("loadSchedule")
@@ -1268,6 +1272,7 @@ document
       });
     hideLoader();
   });
+
 
 
 
