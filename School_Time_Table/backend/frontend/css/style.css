@@ -51,7 +51,6 @@ header h1 {
   background: #45a049;
 }
 
-/* Timetable Styles */
 .timetable {
   overflow-x: auto;
 }
@@ -100,7 +99,6 @@ header h1 {
   background: #1976d2;
 }
 
-/* Modal Styles */
 .modal {
   display: none;
   position: fixed;
@@ -168,7 +166,6 @@ header h1 {
   background: #45a049;
 }
 
-/* Responsive Fix: No overflow and compact for mobile */
 @media (max-width: 700px) {
   html,
   body {
@@ -248,9 +245,9 @@ header h1 {
   }
 }
 .schedule-item {
-  /* ... existing styles ... */
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   touch-action: none;
 }
+
