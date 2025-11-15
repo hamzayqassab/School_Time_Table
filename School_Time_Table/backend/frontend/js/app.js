@@ -116,7 +116,7 @@ function initializeTimetable() {
 };
 
 
-        console.log("📤 Sending PATCH request with payload:", payload);
+        console.log("Sending PATCH request with payload:", payload);
 
         try {
           const response = await fetch(
@@ -128,7 +128,7 @@ function initializeTimetable() {
             }
           );
 
-          console.log("📥 Response status:", response.status);
+          console.log("Response status:", response.status);
 
           if (!response.ok) {
             const result = await response.json();
@@ -491,10 +491,10 @@ cell.dataset.classroom = schedule.classroom_id;
           );
 
           cell.appendChild(item);
-          console.log("✅ Added schedule to cell:", timeSlot);
+          console.log("Added schedule to cell:", timeSlot);
         } else {
           console.warn(
-            "⚠️ Could not find cell for:",
+            "Could not find cell for:",
             schedule.day_of_week,
             timeSlot
           );
