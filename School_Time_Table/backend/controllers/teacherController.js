@@ -1,6 +1,5 @@
 const Teacher = require("../models/teacher.js");
 
-// GET all teachers
 exports.getAllTeachers = async (req, res) => {
   try {
     const teachers = await Teacher.find();
@@ -17,7 +16,6 @@ exports.getAllTeachers = async (req, res) => {
   }
 };
 
-// GET single teacher
 exports.getTeacherById = async (req, res) => {
   try {
     const teacher = await Teacher.findOne({ teacher_id: req.params.id });
@@ -32,7 +30,6 @@ exports.getTeacherById = async (req, res) => {
   }
 };
 
-// POST create teacher
 exports.createTeacher = async (req, res) => {
   try {
     const teacher = await Teacher.create(req.body);
@@ -42,7 +39,6 @@ exports.createTeacher = async (req, res) => {
   }
 };
 
-// PUT update teacher
 exports.updateTeacher = async (req, res) => {
   try {
     const teacher = await Teacher.findOneAndUpdate(
@@ -61,7 +57,6 @@ exports.updateTeacher = async (req, res) => {
   }
 };
 
-// DELETE teacher
 exports.deleteTeacher = async (req, res) => {
   try {
     const teacher = await Teacher.findOneAndDelete({
@@ -77,3 +72,4 @@ exports.deleteTeacher = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
