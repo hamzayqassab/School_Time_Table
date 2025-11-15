@@ -1,6 +1,6 @@
 const Classroom = require("../models/classroom.js");
 
-// GET all classrooms (optionally filtered by grade or section)
+
 exports.getAllClassrooms = async (req, res) => {
   try {
     const { grade, section } = req.query;
@@ -18,7 +18,7 @@ exports.getAllClassrooms = async (req, res) => {
   }
 };
 
-// GET single classroom
+
 exports.getClassroomById = async (req, res) => {
   try {
     const classroom = await Classroom.findOne({ classroom_id: req.params.id });
@@ -33,7 +33,7 @@ exports.getClassroomById = async (req, res) => {
   }
 };
 
-// POST create classroom
+
 exports.createClassroom = async (req, res) => {
   try {
     const classroom = await Classroom.create(req.body);
@@ -43,7 +43,7 @@ exports.createClassroom = async (req, res) => {
   }
 };
 
-// PUT update classroom
+
 exports.updateClassroom = async (req, res) => {
   try {
     const classroom = await Classroom.findOneAndUpdate(
@@ -62,7 +62,6 @@ exports.updateClassroom = async (req, res) => {
   }
 };
 
-// DELETE classroom
 exports.deleteClassroom = async (req, res) => {
   try {
     const classroom = await Classroom.findOneAndDelete({
@@ -78,3 +77,4 @@ exports.deleteClassroom = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
