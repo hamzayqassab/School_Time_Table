@@ -546,21 +546,21 @@ async function seedDatabase() {
   try {
     await connectDB();
 
-    console.log("🗑️  Clearing existing data...");
+    console.log("Clearing existing data");
     await Teacher.deleteMany({});
     await Course.deleteMany({});
     await Classroom.deleteMany({});
-    console.log("✅ Existing data cleared");
+    console.log("Existing data cleared");
 
-    console.log("📥 Inserting new data...");
+    console.log("Inserting new data...");
     await Teacher.insertMany(teachers);
     await Course.insertMany(courses);
     await Classroom.insertMany(classrooms);
 
-    console.log("✅ Database seeded successfully!");
-    console.log(`📊 Inserted ${teachers.length} teachers`);
-    console.log(`📚 Inserted ${courses.length} courses`);
-    console.log(`🏫 Inserted ${classrooms.length} classrooms`);
+    console.log("Database seeded successfully");
+    console.log(`Inserted ${teachers.length} teachers`);
+    console.log(`Inserted ${courses.length} courses`);
+    console.log(`Inserted ${classrooms.length} classrooms`);
 
     
     if (require.main === module) {
@@ -568,7 +568,7 @@ async function seedDatabase() {
       process.exit(0);
     }
   } catch (error) {
-    console.error("❌ Error seeding database:", error);
+    console.error("Error seeding database:", error);
     if (require.main === module) {
       mongoose.connection.close();
       process.exit(1);
@@ -578,9 +578,4 @@ async function seedDatabase() {
 
 
 module.exports = seedDatabase;
-
 module.exports = seedDatabase;
-
-
-
-
