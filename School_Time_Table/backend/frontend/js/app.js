@@ -1,12 +1,8 @@
-
-
-
-// API Base URL
 const API_URL = "https://schooltimetable-production.up.railway.app/api/v1";
 let teacherMap = {};
 let courseMap = {};
 let classroomMap = {};
-// Time slots for the timetable
+
 const TIME_SLOTS = [
   "08:00-09:00",
   "09:00-10:00",
@@ -19,9 +15,9 @@ const TIME_SLOTS = [
 ];
 
 const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday"];
-let coursesData = []; // For all course objects
-let teachersData = []; // For all teacher objects
-//
+let coursesData = []; 
+let teachersData = []; 
+
 function showLoader() {
   document.getElementById("loader").style.display = "flex";
 }
@@ -29,93 +25,7 @@ function hideLoader() {
   document.getElementById("loader").style.display = "none";
 }
 
-// Create empty timetable grid
-// function initializeTimetable() {
-//   const tbody = document.getElementById("scheduleBody");
-//   tbody.innerHTML = "";
 
-//   TIME_SLOTS.forEach((timeSlot) => {
-//     const row = document.createElement("tr");
-
-//     // Time column
-//     const timeCell = document.createElement("td");
-//     timeCell.textContent = timeSlot;
-
-//     timeCell.style.fontWeight = "bold";
-//     row.appendChild(timeCell);
-
-//     // });
-//     DAYS.forEach((day) => {
-//       // TIME_SLOTS.forEach((timeSlot) => {
-//       const cell = document.createElement("td");
-//       cell.className = "schedule-cell";
-//       cell.dataset.day = day; // ← Make sure this is set
-//       cell.dataset.time = timeSlot; // ← Make sure this is set
-
-//          // ✅ ADD THIS LINE:
-//     const classroomId = document.getElementById("classroomFilter")?.value || "all";
-//     cell.dataset.classroom = classroomId;
-
-//       // ADD DROP HANDLERS:
-//       cell.addEventListener("dragover", function (e) {
-//         e.preventDefault();
-//       });
-
-//       cell.addEventListener("drop", async function (e) {
-//         e.preventDefault();
-//         console.log("📱 DROP fired with:", {
-//         classroom: cell.dataset.classroom,
-//         day: cell.dataset.day,
-//         time: cell.dataset.time,
-//     });
-//         const transfer = e.dataTransfer.getData("application/json");
-//         if (!transfer) return;
-//         const scheduleInfo = JSON.parse(transfer);
-//         if (scheduleInfo.scheduleId) {
-//           const response = await fetch(
-//             `${API_URL}/schedules/${scheduleInfo.scheduleId}`,
-//             {
-//               method: "PATCH",
-//               headers: { "Content-Type": "application/json" },
-//               body: JSON.stringify({
-//                 classroom_id: cell.dataset.classroom,
-//                 teacher_ids: scheduleInfo.teacherIds,
-//                 day_of_week: cell.dataset.day,
-//                 start_time: cell.dataset.time.split("-")[0],
-//                 end_time: cell.dataset.time.split("-")[1],
-//               }),
-//             }
-//           );
-
-//           if (!response.ok) {
-//             const result = await response.json();
-//             alert(result.error || "Error updating schedule.");
-//             loadSchedules();
-//             return;
-//           }
-//           loadSchedules();
-//           return;
-//         }
-//         console.log("Dropping on:", {
-//           day: cell.dataset.day,
-//           time: cell.dataset.time,
-//           scheduleId: scheduleInfo.scheduleId,
-//         });
-
-//         // try {
-
-//         // }
-//       });
-
-//       row.appendChild(cell);
-//       // });
-//     });
-
-//     // TO BE CONTINUED(THE SWAPPING WORKED BUT DOUBLED THE FRONTEND GRID)
-//     tbody.appendChild(row);
-//   });
-// }
-// 
 function initializeTimetable() {
   const tbody = document.getElementById("scheduleBody");
   tbody.innerHTML = "";
@@ -123,7 +33,6 @@ function initializeTimetable() {
   TIME_SLOTS.forEach((timeSlot) => {
     const row = document.createElement("tr");
 
-    // Time column
     const timeCell = document.createElement("td");
     timeCell.textContent = timeSlot;
     timeCell.style.fontWeight = "bold";
@@ -135,42 +44,33 @@ function initializeTimetable() {
       cell.dataset.day = day;
       cell.dataset.time = timeSlot;
       
-      // ✅ CRITICAL: Set classroom from filter OR use a global state
-      // const classroomId = document.getElementById("classroomFilter").value;
-      // cell.dataset.classroom = classroomId;
-
-      // ✅ Dragover handler - MUST prevent default!
       cell.addEventListener("dragover", function (e) {
         e.preventDefault();
         e.dataTransfer.dropEffect = "move";
-        cell.style.backgroundColor = "#e3f2fd"; // Visual feedback
+        cell.style.backgroundColor = "#e3f2fd"; 
       });
 
-      // ✅ Dragleave handler - Remove visual feedback
       cell.addEventListener("dragleave", function (e) {
         if (e.target === cell) {
           cell.style.backgroundColor = "";
         }
       });
 
-      // ✅ Drop handler - FIXED for mobile
       cell.addEventListener("drop", async function (e) {
         e.preventDefault();
         e.stopPropagation();
         
-        cell.style.backgroundColor = ""; // Remove visual feedback
+        cell.style.backgroundColor = ""; 
         
-        console.log("📱 DROP EVENT FIRED on cell:", {
+        console.log(" DROP EVENT FIRED on cell:", {
           day: cell.dataset.day,
           time: cell.dataset.time,
           classroom: cell.dataset.classroom,
         });
 
-        // ✅ TRY MULTIPLE transfer types for mobile compatibility
         let transfer = null;
         let scheduleInfo = null;
 
-        // Try JSON first (most reliable)
         try {
           transfer = e.dataTransfer.getData("application/json");
           if (transfer) {
@@ -180,7 +80,6 @@ function initializeTimetable() {
           console.warn("Failed to parse JSON transfer:", err);
         }
 
-        // Fallback to text if JSON fails
         if (!scheduleInfo) {
           try {
             transfer = e.dataTransfer.getData("text/plain");
@@ -192,33 +91,24 @@ function initializeTimetable() {
           }
         }
 
-        // If still no data, check all available types
         if (!scheduleInfo) {
-          console.error("❌ No transfer data found. Available types:", {
+          console.error(" No transfer data found. Available types:", {
             types: e.dataTransfer.types,
             items: e.dataTransfer.items?.length || 0,
           });
           return;
         }
 
-        console.log("✅ Transfer data received:", scheduleInfo);
+        console.log(" Transfer data received:", scheduleInfo);
 
         if (!scheduleInfo.scheduleId) {
-          console.error("❌ No scheduleId in transfer data");
+          console.error(" No scheduleId in transfer data");
           return;
         }
 
-        // ✅ Build payload with correct data
-        // const payload = {
-        //   classroom_id: cell.dataset.classroom,
-        //   teacher_ids: scheduleInfo.teacherIds || [],
-        //   day_of_week: cell.dataset.day,
-        //   start_time: cell.dataset.time.split("-")[0],
-        //   end_time: cell.dataset.time.split("-")[1],
-        // };
 
         const payload = {
-  classroom_id: scheduleInfo.classroomId,  // ✅ CORRECT - uses original classroom
+  classroom_id: scheduleInfo.classroomId,  
   teacher_ids: scheduleInfo.teacherIds || [],
   day_of_week: cell.dataset.day,
   start_time: cell.dataset.time.split("-")[0],
@@ -242,15 +132,15 @@ function initializeTimetable() {
 
           if (!response.ok) {
             const result = await response.json();
-            console.error("❌ Backend error:", result);
+            console.error(" Backend error:", result);
             alert(result.error || `Error: ${response.status}`);
             return;
           }
 
-          console.log("✅ Schedule updated successfully!");
+          console.log(" Schedule updated successfully");
           await loadSchedules();
         } catch (error) {
-          console.error("❌ Network error:", error);
+          console.error(" Network error:", error);
           alert("Network error: " + error.message);
         }
       });
@@ -262,9 +152,7 @@ function initializeTimetable() {
   });
 }
 
-// 
 
-// Load teachers from API
 async function loadTeachers() {
   try {
     console.log("Loading teachers...");
@@ -275,7 +163,7 @@ async function loadTeachers() {
     }
 
     const result = await response.json();
-    //
+
     teachersData = result.data;
     console.log("Teachers loaded:", result.data.length);
     teacherMap = {};
@@ -298,14 +186,13 @@ async function loadTeachers() {
       });
     });
 
-    console.log("✅ Teachers dropdown populated");
+    console.log(" Teachers dropdown populated");
   } catch (error) {
-    console.error("❌ Error loading teachers:", error);
-    alert("Failed to load teachers. Check console for details.");
+    console.error(" Error loading teachers:", error);
+    alert("Failed to load teachers");
   }
 }
-// Assuming you have a global coursesData array, populated on page load
-// Load courses from API
+
 async function loadCourses() {
   try {
     console.log("Loading courses...");
@@ -316,7 +203,7 @@ async function loadCourses() {
     }
 
     const result = await response.json();
-    //
+    
     coursesData = result.data;
     console.log("Courses loaded:", result.data.length);
     courseMap = {};
@@ -333,16 +220,16 @@ async function loadCourses() {
       courseSelect.appendChild(option);
     });
 
-    console.log("✅ Courses dropdown populated");
+    console.log(" Courses dropdown populated");
     setupJointTeachingListener();
   } catch (error) {
-    console.error("❌ Error loading courses:", error);
-    alert("Failed to load courses. Check console for details.");
+    console.error(" Error loading courses:", error);
+    alert("Failed to load courses");
   }
 }
 function setupJointTeachingListener() {
   const courseSelect = document.getElementById("courseId");
-  courseSelect.removeEventListener("change", handleCourseChange); // Clean up
+  courseSelect.removeEventListener("change", handleCourseChange);
   courseSelect.addEventListener("change", handleCourseChange);
 }
 
@@ -375,7 +262,6 @@ function handleCourseChange() {
   }
 }
 
-// Load classrooms from API
 async function loadClassrooms() {
   try {
     console.log("Loading classrooms...");
@@ -407,15 +293,13 @@ async function loadClassrooms() {
       });
     });
 
-    console.log("✅ Classrooms dropdown populated");
+    console.log(" Classrooms dropdown populated");
   } catch (error) {
-    console.error("❌ Error loading classrooms:", error);
-    alert("Failed to load classrooms. Check console for details.");
+    console.error(" Error loading classrooms:", error);
+    alert("Failed to load classrooms");
   }
 }
 
-//
-// Helper function to get all time slots a schedule spans
 function getSpannedTimeSlots(startTime, endTime) {
   const slots = [];
   const allSlots = [
@@ -431,7 +315,6 @@ function getSpannedTimeSlots(startTime, endTime) {
 
   for (let slot of allSlots) {
     const [slotStart, slotEnd] = slot.split("-");
-    // Check if this slot overlaps with the schedule
     if (startTime < slotEnd && endTime > slotStart) {
       slots.push(slot);
     }
@@ -439,22 +322,21 @@ function getSpannedTimeSlots(startTime, endTime) {
   return slots;
 }
 
-// Helper to get deterministic color (same color for same schedule)
 function getDeterministicColor(scheduleId) {
   const palette = [
-    "hsl(0, 70%, 75%)", // Red
+    "hsl(0, 70%, 75%)", 
     "hsl(72, 70%, 75%)",
     "hsl(96, 70%, 75%)",
     "hsl(24, 70%, 75%)",
-    "hsl(210, 70%, 75%)", // Blue
-    "hsl(120, 60%, 75%)", // Green
-    "hsl(40, 80%, 75%)", // Orange
-    "hsl(280, 60%, 75%)", // Purple
-    "hsl(180, 60%, 75%)", // Cyan
-    "hsl(60, 70%, 75%)", // Yellow
-    "hsl(300, 60%, 75%)", // Magenta
-    "hsl(160, 60%, 75%)", // Teal
-    "hsl(30, 80%, 80%)", // Coral
+    "hsl(210, 70%, 75%)", 
+    "hsl(120, 60%, 75%)", 
+    "hsl(40, 80%, 75%)", 
+    "hsl(280, 60%, 75%)", 
+    "hsl(180, 60%, 75%)", 
+    "hsl(60, 70%, 75%)", 
+    "hsl(300, 60%, 75%)", 
+    "hsl(160, 60%, 75%)", 
+    "hsl(30, 80%, 80%)", 
     "hsl(288, 60%, 75%)",
     "hsl(240, 60%, 75%)",
     "hsl(48, 70%, 75%)",
@@ -467,7 +349,6 @@ function getDeterministicColor(scheduleId) {
   }
   return palette[Math.abs(hash) % palette.length];
 }
-// teachermap error
 async function loadSchedules() {
   const classroomId = document.getElementById("classroomFilter").value;
   const teacherId = document.getElementById("teacherFilter").value;
@@ -480,67 +361,44 @@ async function loadSchedules() {
     console.log("Loading schedules from:", url);
     const response = await fetch(url);
     const result = await response.json();
-    //   result.data.forEach((schedule) => {
-    //   });
+    
     console.log("Schedules loaded:", result.data);
 
-    // Clear existing schedules
+    
     document.querySelectorAll(".schedule-cell").forEach((cell) => {
       cell.innerHTML = "";
     });
 
-    // Populate schedules
     result.data.forEach((schedule) => {
       console.log("Processing schedule:", schedule);
 
-      // Get all time slots this schedule spans
       const timeSlots = getSpannedTimeSlots(
         schedule.start_time,
         schedule.end_time
       );
 
-      // Get a consistent color for this schedule
       const scheduleColor = getDeterministicColor(schedule.schedule_id);
 
       console.log(`Schedule spans ${timeSlots.length} slots:`, timeSlots);
 
-      // Create a schedule item in each spanned slot
       timeSlots.forEach((timeSlot) => {
         const cell = document.querySelector(
           `[data-day="${schedule.day_of_week}"][data-time="${timeSlot}"]`
         );
 
         if (cell) {
-          // SET THE CLASSROOM FROM THE SCHEDULE DATA
 cell.dataset.classroom = schedule.classroom_id;
           const item = document.createElement("div");
           item.className = "schedule-item";
           item.setAttribute("draggable", "true");
-
-          // Apply the same color to all cells of this schedule
           item.style.background = scheduleColor;
-          //
+
           let isDragging = false;
-          // item.addEventListener("dragstart", function (e) {
-          //   isDragging = true;
-          //   document.getElementById("schedule-tooltip").style.display = "none"; // Always hide tooltip
-          //   e.dataTransfer.setData(
-          //     "application/json",
-          //     JSON.stringify({
-          //       scheduleId: schedule.schedule_id,
-          //       classroomId: schedule.classroom_id,
-          //       teacherIds: schedule.teacher_ids,
-          //       day: schedule.day_of_week,
-          //       time: schedule.start_time + "-" + schedule.end_time,
-          //     })
-          //   );
-          // });
-          // 
+      
           item.addEventListener("dragstart", function (e) {
   isDragging = true;
   document.getElementById("schedule-tooltip").style.display = "none";
   
-  // ✅ Set ALL transfer types for maximum compatibility
   const transferData = JSON.stringify({
     scheduleId: schedule.schedule_id,
     classroomId: schedule.classroom_id,
@@ -549,32 +407,27 @@ cell.dataset.classroom = schedule.classroom_id;
     time: schedule.start_time + "-" + schedule.end_time,
   });
 
-  console.log("🎯 Dragging schedule:", {
+  console.log("Dragging schedule:", {
     scheduleId: schedule.schedule_id,
     classroom: schedule.classroom_id,
   });
 
-  // ✅ Set multiple formats for maximum compatibility
   e.dataTransfer.effectAllowed = "move";
   e.dataTransfer.setData("application/json", transferData);
-  e.dataTransfer.setData("text/plain", transferData); // Fallback
+  e.dataTransfer.setData("text/plain", transferData); 
 
-  // ✅ Set drag image for visual feedback
   const dragImage = new Image();
   dragImage.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50'%3E%3Ccircle cx='25' cy='25' r='20' fill='%23667eea'/%3E%3C/svg%3E";
   e.dataTransfer.setDragImage(dragImage, 25, 25);
 });
 
-          // 
-          //
+        
           item.addEventListener("dragend", function (e) {
             isDragging = false;
-            // Optionally, tooltip logic can resume on mouseenter
           });
-          // Extract the time range for THIS specific cell
+        
           const [cellStart, cellEnd] = timeSlot.split("-");
 
-          // Show full info in ALL cells, but with the specific time slot
           item.innerHTML = `
                         <strong>${schedule.course_id}</strong><br>
                           ${schedule.grade}<br>
@@ -592,9 +445,8 @@ cell.dataset.classroom = schedule.classroom_id;
 
           item.dataset.scheduleId = schedule.schedule_id;
 
-          // Tooltip handlers (show full schedule duration)
           item.addEventListener("mouseenter", function (e) {
-            if (isDragging) return; // Prevent tooltip if dragging
+            if (isDragging) return; 
             const tooltip = document.getElementById("schedule-tooltip");
             const teacherName = Array.isArray(schedule.teacher_ids)
               ? schedule.teacher_ids
@@ -624,7 +476,7 @@ cell.dataset.classroom = schedule.classroom_id;
           });
 
           item.addEventListener("mousemove", function (e) {
-            if (isDragging) return; // Prevent tooltip if dragging
+            if (isDragging) return; 
             const tooltip = document.getElementById("schedule-tooltip");
             tooltip.style.left = e.pageX + 12 + "px";
             tooltip.style.top = e.pageY - 38 + "px";
@@ -637,31 +489,6 @@ cell.dataset.classroom = schedule.classroom_id;
           item.addEventListener("click", () =>
             deleteSchedule(schedule.schedule_id)
           );
-          //
-          // ==== Mobile Drag & Drop Support (Touch Events) ====
-          // Place after all desktop/tooltip handlers for each schedule-item
-
-          // item.addEventListener("touchstart", function (e) {
-          //   console.log("touchstart", item);
-          //   window.mobileDragItem = item;
-          //   window.mobileInitialTouch = e.touches[0];
-          //   item.style.opacity = "0.6";
-          // });
-
-          // item.addEventListener("touchmove", function (e) {
-          //   console.log("touchmove", item);
-          //   if (!window.mobileDragItem) return;
-          //   e.preventDefault();
-          // });
-
-   
-          //     await loadSchedules(); // Refresh the table
-          //   }
-          //   window.mobileDragItem = null;
-          //   window.mobileInitialTouch = null;
-          // });
-
-          //
 
           cell.appendChild(item);
           console.log("✅ Added schedule to cell:", timeSlot);
@@ -675,9 +502,9 @@ cell.dataset.classroom = schedule.classroom_id;
       });
     });
 
-    console.log("✅ All schedules displayed");
+    console.log(" All schedules displayed");
   } catch (error) {
-    console.error("❌ Error loading schedules:", error);
+    console.error(" Error loading schedules:", error);
     alert("Failed to load schedules: " + error.message);
   }
   document.querySelectorAll(".schedule-cell").forEach((cell) => {
@@ -688,11 +515,8 @@ cell.dataset.classroom = schedule.classroom_id;
     }
   });
 }
-//
 
-//
 async function loadSchedulesForWeek(selectedWeek) {
-  // Fetch all schedules as usual
   let classroomId = document.getElementById("classroomFilter").value;
   let teacherId = document.getElementById("teacherFilter").value;
   let url = `${API_URL}/schedules?`;
@@ -703,30 +527,27 @@ async function loadSchedulesForWeek(selectedWeek) {
     const response = await fetch(url);
     const result = await response.json();
 
-    // Clear existing schedules in the table
     document
       .querySelectorAll(".schedule-cell")
       .forEach((cell) => (cell.innerHTML = ""));
 
     result.data.forEach((schedule) => {
-      // Find the teacher who owns this schedule
+      
       const teacherObj = teachersData.find(
         (t) => t.teacher_id === schedule.teacher_ids[0]
       );
-      // If the teacher has more than one subject, alternate which subject is taught this week
+  
       if (teacherObj && teacherObj.subjects && teacherObj.subjects.length > 1) {
         schedule.course_id =
           teacherObj.subjects[(selectedWeek - 1) % teacherObj.subjects.length];
       }
 
-      // ---- Copy this block from your original rendering logic ----
       const timeSlots = getSpannedTimeSlots(
         schedule.start_time,
         schedule.end_time
       );
       const scheduleColor = getDeterministicColor(schedule.schedule_id);
 
-      // timeSlots.forEach((timeSlot) => {
       timeSlots.forEach((timeSlot) => {
         const cell = document.querySelector(
           `[data-day='${schedule.day_of_week}'][data-time='${timeSlot}']`
@@ -750,16 +571,15 @@ async function loadSchedulesForWeek(selectedWeek) {
           cell.appendChild(item);
         }
       });
-      // ---- End copy block ----
+
     });
-    console.log("✅ All schedules displayed for week", selectedWeek);
+    console.log("All schedules displayed for week", selectedWeek);
   } catch (error) {
-    console.error("❌ Error loading schedules for week:", error);
+    console.error(" Error loading schedules for week:", error);
     alert("Failed to load schedules for week: " + error.message);
   }
 }
 
-// Delete schedule
 async function deleteSchedule(scheduleId) {
   if (!confirm("Delete this schedule?")) return;
 
@@ -780,7 +600,6 @@ async function deleteSchedule(scheduleId) {
   }
 }
 
-// Save schedule
 async function saveSchedule(e) {
   e.preventDefault();
 
@@ -803,16 +622,14 @@ async function saveSchedule(e) {
     alert("Please fill in all fields!");
     return;
   }
-  // >>> ADD THIS LINE <<<
 
   let grade = null;
   if (gradeLabel && typeof gradeLabel === "string") {
-    // Try to get numeric prefix, fallback to full label if not possible
+  
     const matched = gradeLabel.match(/^\\d+/);
     grade = matched ? matched[0] : gradeLabel;
   }
 
-  // <<< END LINE >>>
   const scheduleData = {
     schedule_id: `SCH_${Date.now()}`,
     teacher_ids: [
@@ -844,19 +661,18 @@ async function saveSchedule(e) {
     console.log("Server response:", result);
 
     if (response.ok && result.success) {
-      alert("✅ Schedule saved successfully!");
+      alert(" Schedule saved successfully");
       closeModal();
       loadSchedules();
     } else {
-      alert("❌ Failed to save schedule: " + (result.error || "Unknown error"));
+      alert("Failed to save schedule: " + (result.error || "Unknown error"));
     }
   } catch (error) {
     console.error("Error saving schedule:", error);
-    alert("❌ Network error: " + error.message);
+    alert("Network error: " + error.message);
   }
 }
 
-// Modal functions
 function openModal() {
   document.getElementById("scheduleModal").style.display = "block";
 }
@@ -866,7 +682,6 @@ function closeModal() {
   document.getElementById("scheduleForm").reset();
 }
 
-// Close modal when clicking outside
 window.onclick = function (event) {
   const modal = document.getElementById("scheduleModal");
   if (event.target == modal) {
@@ -874,7 +689,6 @@ window.onclick = function (event) {
   }
 };
 
-// Smart filtering - courses by teacher
 function setupTeacherCourseFilter() {
   const teacherSelect = document.getElementById("teacherId");
 
@@ -911,7 +725,7 @@ function setupTeacherCourseFilter() {
           }
         });
 
-        console.log(`✅ Filtered courses for ${teacher.name}`);
+        console.log(`Filtered courses for ${teacher.name}`);
       }
     } catch (error) {
       console.error("Error filtering courses:", error);
@@ -919,7 +733,6 @@ function setupTeacherCourseFilter() {
   });
 }
 
-// Smart filtering - classrooms by teacher
 function setupTeacherClassroomFilter() {
   const teacherSelect = document.getElementById("teacherId");
 
@@ -957,7 +770,7 @@ function setupTeacherClassroomFilter() {
           }
         });
 
-        console.log(`✅ Filtered classrooms for ${teacher.name}`);
+        console.log(`Filtered classrooms for ${teacher.name}`);
       }
     } catch (error) {
       console.error("Error filtering classrooms:", error);
@@ -965,18 +778,17 @@ function setupTeacherClassroomFilter() {
   });
 }
 
-// Initialize the app
 document.addEventListener("DOMContentLoaded", () => {
   console.log("App initialized");
 
   initializeTimetable();
   loadTeachers();
-  // Add THIS code right after loadTeachers() so the event will find teacherData and the select:
+  
   document.getElementById("teacherId").addEventListener("change", function () {
     const selectedTeacherId = this.value;
     const teacher = teachersData.find(
       (t) => t.teacher_id === selectedTeacherId
-    ); // Or t.teacherid, match your schema
+    ); 
     const gradeSelect = document.getElementById("grade");
     gradeSelect.innerHTML = "<option value=''>Select Grade</option>";
 
@@ -987,8 +799,8 @@ document.addEventListener("DOMContentLoaded", () => {
       grades.forEach((gradeRaw) => {
         const grade = gradeRaw.trim();
         const option = document.createElement("option");
-        option.value = grade; // Only "1", "2", etc.
-        option.textContent = grade; // Only "1", "2", etc.
+        option.value = grade; 
+        option.textContent = grade; 
         gradeSelect.appendChild(option);
       });
     }
@@ -996,15 +808,11 @@ document.addEventListener("DOMContentLoaded", () => {
   loadCourses();
   loadClassrooms();
 
-  // Setup filters
   setupTeacherCourseFilter();
   setupTeacherClassroomFilter();
 
-    // Auto-load schedules when classroom filter changes
   document.getElementById("classroomFilter").addEventListener("change", loadSchedules);
 
-
-  // Event listeners
   document
     .getElementById("loadSchedule")
     .addEventListener("click", loadSchedules);
@@ -1019,26 +827,24 @@ document.addEventListener("DOMContentLoaded", () => {
       showLoader();
       if (
         !confirm(
-          "Are you sure you want to delete ALL schedules? This cannot be undone!"
+          "Are you sure you want to delete ALL schedules? This cannot be undone"
         )
       )
         return;
 
-      // Fetch all schedules first (could be paged if many)
       let response = await fetch(`${API_URL}/schedules`);
       let result = await response.json();
       if (result.success) {
-        // Delete each schedule
         for (const sched of result.data) {
           await fetch(`${API_URL}/schedules/${sched.schedule_id}`, {
             method: "DELETE",
           });
         }
         hideLoader();
-        alert("✅ All schedules deleted!");
+        alert("All schedules deleted");
         loadSchedules();
       } else {
-        alert("❌ Could not load schedules. Try again.");
+        alert("Could not load schedules. Try again.");
       }
     });
   document
@@ -1047,7 +853,7 @@ document.addEventListener("DOMContentLoaded", () => {
       loadSchedulesForWeek(parseInt(this.value));
     });
 });
-//
+
 document
   .getElementById("shuffleTimetable")
   .addEventListener("click", async function () {
@@ -1073,12 +879,9 @@ document
     }
   });
 
-//
-//  fix the broken populate button(400,409 errors)
-//   });
+
 function isTeacherAvailable(teacher, day, startTime, endTime) {
   if (!teacher.availability || !teacher.availability[day]) {
-    // cell.style.background = "#e0e0e0";
     return false;
   }
   const slots = Array.isArray(teacher.availability[day])
@@ -1130,42 +933,34 @@ document
           if (slotMap[skey]) continue;
 
           for (const course of coursesData) {
-            // Find only perfect teachers
             const validTeachers = teachersData.filter((t) => {
-              // Teaches course
+              
               let teachesCourse = Array.isArray(t.subjects)
                 ? t.subjects.includes(course.course_id)
                 : typeof t.subjects === "string" &&
                   t.subjects.split(",").includes(course.course_id);
               if (!teachesCourse) return false;
-              // Grade-level match
+        
               if (!t.grade_levels) return false;
               let grades = Array.isArray(t.grade_levels)
                 ? t.grade_levels
                 : t.grade_levels.split(",");
-              // let classroomObj = classroomMap
-              //     : null;
               let classroomObj = classroomMap[classroomId];
               let grade;
               if (classroomObj && classroomObj.grade) {
                 grade = String(classroomObj.grade).trim();
               } else {
-                // Extract numeric prefix from classroomId like "1A" => "1"
                 grade = classroomId.match(/\d+/)[0];
-                // ? classroomId.match(/\d+/)[0]
-                // : null;
               }
 
               if (!grades.map((g) => String(g).trim()).includes(grade))
                 return false;
-              // Available for exact slot
+          
               if (!t.availability || !t.availability[day]) return false;
               if (!isTeacherAvailable(t, day, startTime, endTime)) return false;
               return true;
             });
-            // if (
-
-            // }
+            
             if (validTeachers.length === 0) {
               teachersData.forEach((t) => {
                 let reason = [];
@@ -1183,13 +978,11 @@ document
                   ? t.grade_levels
                   : t.grade_levels.split(",");
 
-                // If classroomObj.grade is missing, extract grade from classroomId ("1A" => "1")
                 let grd;
                 let classroomObj = classroomMap[classroomId];
                 if (classroomObj && classroomObj.grade) {
                   grd = String(classroomObj.grade).trim();
                 } else {
-                  // Extract numeric prefix from classroomId
                   grd = classroomId.match(/\d+/)
                     ? classroomId.match(/\d+/)[0]
                     : null;
@@ -1230,10 +1023,9 @@ document
             const teacher = validTeachers[0];
             const tkey = `${teacher.teacher_id}|${day}|${slot}`;
             if (teacherSlotMap[tkey]) continue;
-
-            //     : "1";
+            
             let matched = classroomId.match(/^(\d+)/);
-            let grade = matched ? matched[1] : ""; // If nothing matched, grade is ""
+            let grade = matched ? matched[1] : ""; 
 
             const scheduleData = {
               schedule_id: `SCH_${Date.now()}_${Math.random()
@@ -1281,17 +1073,3 @@ document
       });
     hideLoader();
   });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
