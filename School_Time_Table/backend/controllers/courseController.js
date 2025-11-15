@@ -1,6 +1,6 @@
 const Course = require("../models/course.js");
 
-// GET all courses
+
 exports.getAllCourses = async (req, res) => {
   try {
     const courses = await Course.find();
@@ -14,7 +14,7 @@ exports.getAllCourses = async (req, res) => {
   }
 };
 
-// GET single course
+
 exports.getCourseById = async (req, res) => {
   try {
     const course = await Course.findOne({ course_id: req.params.id });
@@ -29,7 +29,7 @@ exports.getCourseById = async (req, res) => {
   }
 };
 
-// POST create course
+
 exports.createCourse = async (req, res) => {
   try {
     const course = await Course.create(req.body);
@@ -39,7 +39,7 @@ exports.createCourse = async (req, res) => {
   }
 };
 
-// PUT update course
+
 exports.updateCourse = async (req, res) => {
   try {
     const course = await Course.findOneAndUpdate(
@@ -58,7 +58,7 @@ exports.updateCourse = async (req, res) => {
   }
 };
 
-// DELETE course
+
 exports.deleteCourse = async (req, res) => {
   try {
     const course = await Course.findOneAndDelete({ course_id: req.params.id });
@@ -72,3 +72,4 @@ exports.deleteCourse = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
