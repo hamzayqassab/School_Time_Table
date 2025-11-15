@@ -102,7 +102,6 @@ exports.createSchedule = async (req, res) => {
         });
       }
     }
-
     
     const classroomConflict = await Schedule.findOne({
       classroom_id,
@@ -189,7 +188,6 @@ exports.deleteSchedule = async (req, res) => {
   }
 };
 
-
 exports.updateSchedule = async (req, res) => {
   try {
     const { teacher_ids, classroom_id, day_of_week, start_time, end_time } =
@@ -206,7 +204,6 @@ exports.updateSchedule = async (req, res) => {
       "15:00-16:00",
     ];
 
-    
     for (const tid of teacher_list) {
       const teacher = await Teacher.findOne({ teacher_id: tid });
       if (!teacher)
@@ -233,12 +230,11 @@ exports.updateSchedule = async (req, res) => {
         });
       }
 
-      
       const teacherConflict = await Schedule.findOne({
         teacher_ids: tid,
         day_of_week,
         $or: [{ start_time: { $lt: end_time }, end_time: { $gt: start_time } }],
-        schedule_id: { $ne: req.params.id }, // Exclude self
+        schedule_id: { $ne: req.params.id }, 
       });
       if (teacherConflict) {
         return res.status(409).json({
@@ -247,13 +243,12 @@ exports.updateSchedule = async (req, res) => {
         });
       }
     }
-
     
     const classroomConflict = await Schedule.findOne({
       classroom_id,
       day_of_week,
       $or: [{ start_time: { $lt: end_time }, end_time: { $gt: start_time } }],
-      schedule_id: { $ne: req.params.id }, // Exclude self
+      schedule_id: { $ne: req.params.id }, 
     });
     if (classroomConflict) {
       return res.status(409).json({
@@ -445,5 +440,3 @@ exports.shuffleSchedules = async (_req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 };
-
-//
