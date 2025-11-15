@@ -2,28 +2,14 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const connectDB = require("../config/database");
 
-
-// Load environment variables from parent directory
 const path = require("path");
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-// Import models
 const Teacher = require("../models/teacher.js");
 const Course = require("../models/course.js");
 const Classroom = require("../models/classroom.js");
 
-// Connect to MongoDB
-// const connectDB = async () => {
-//   try {
-//     await mongoose.connect(process.env.MONGODB_URI);
-//     console.log("✅ MongoDB Connected");
-//   } catch (error) {
-//     console.error("❌ MongoDB Connection Error:", error);
-//     process.exit(1);
-//   }
-// };
 
-// ALL 26 Teachers
 const teachers = [
   {
     teacher_id: "T001",
@@ -446,7 +432,6 @@ const teachers = [
   },
 ];
 
-// ALL 11 Courses
 const courses = [
   {
     course_id: "ARA_001",
@@ -540,7 +525,6 @@ const courses = [
   },
 ];
 
-// Generate 24 classrooms
 const classrooms = [];
 for (let grade = 1; grade <= 12; grade++) {
   for (let section of ["A", "B"]) {
@@ -558,35 +542,6 @@ for (let grade = 1; grade <= 12; grade++) {
   }
 }
 
-// Seed function
-// async function seedDatabase() {
-//   try {
-//     await connectDB();
-
-//     console.log("🗑️  Clearing existing data...");
-//     await Teacher.deleteMany({});
-//     await Course.deleteMany({});
-//     await Classroom.deleteMany({});
-//     console.log("✅ Existing data cleared");
-
-//     console.log("📥 Inserting new data...");
-//     await Teacher.insertMany(teachers);
-//     await Course.insertMany(courses);
-//     await Classroom.insertMany(classrooms);
-
-//     console.log("✅ Database seeded successfully!");
-//     console.log(`📊 Inserted ${teachers.length} teachers`);
-//     console.log(`📚 Inserted ${courses.length} courses`);
-//     console.log(`🏫 Inserted ${classrooms.length} classrooms`);
-
-//     mongoose.connection.close();
-//     process.exit(0);
-//   } catch (error) {
-//     console.error("❌ Error seeding database:", error);
-//     mongoose.connection.close();
-//     process.exit(1);
-//   }
-// }
 async function seedDatabase() {
   try {
     await connectDB();
@@ -607,8 +562,7 @@ async function seedDatabase() {
     console.log(`📚 Inserted ${courses.length} courses`);
     console.log(`🏫 Inserted ${classrooms.length} classrooms`);
 
-    // Only close the connection and exit the process
-    // if this script was run directly (node seed.js)
+    
     if (require.main === module) {
       mongoose.connection.close();
       process.exit(0);
@@ -622,16 +576,11 @@ async function seedDatabase() {
   }
 }
 
-// Only run when executed directly (CLI)
-// if (require.main === module) {
-//   seedDatabase();
-// }
 
 module.exports = seedDatabase;
 
-// seedDatabase();
-
 module.exports = seedDatabase;
+
 
 
 
